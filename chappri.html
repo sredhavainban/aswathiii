@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aswati's Chappri Photos</title>
+  <style>
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: #fff0f5;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1em;
+      box-sizing: border-box;
+    }
+    .gallery {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1em;
+    }
+    .gallery img, .gallery video {
+      border-radius: 18px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+      width: 220px;
+      height: 220px;
+      object-fit: cover;
+      border: 3px solid #222;
+      background: #fff;
+      transition: transform 0.2s, border 0.2s;
+      cursor: pointer;
+      max-width: 100vw;
+      max-height: 40vw;
+    }
+    .gallery img:hover {
+      transform: scale(1.08) rotate(-2deg);
+      border: 3px solid #222;
+    }
+    .gallery-btn {
+      margin-top: 2em;
+      padding: 0.9em 2.2em;
+      font-size: 1.2rem;
+      background: linear-gradient(90deg, #ffb347, #ff69b4, #6a5acd);
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+      cursor: pointer;
+      font-weight: 900;
+      letter-spacing: 1px;
+      transition: background 0.3s, transform 0.2s, color 0.3s;
+      position: relative;
+      overflow: hidden;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .gallery-btn:hover {
+      background: linear-gradient(90deg, #6a5acd, #ff69b4, #ffb347);
+      transform: scale(1.07) rotate(-2deg);
+      color: #fffde7;
+    }
+    #gallery-music-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: linear-gradient(135deg, #ffb347 0%, #ff69b4 60%, #6a5acd 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      animation: overlayFadeIn 1s;
+    }
+    @keyframes overlayFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    #gallery-play-music-btn {
+      font-size: 1.5rem;
+      padding: 1.3em 2.7em;
+      border: none;
+      border-radius: 2em;
+      background: linear-gradient(90deg, #6a5acd 0%, #ff69b4 100%);
+      color: #fff;
+      box-shadow: 0 4px 24px 0 rgba(90,0,120,0.18);
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: transform 0.18s, background 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 0.9em;
+      outline: none;
+      border: 2px solid #fff0f5;
+      animation: btnPop 0.7s;
+    }
+    #gallery-play-music-btn:hover {
+      background: linear-gradient(90deg,#ff69b4 0%,#6a5acd 100%);
+      transform: scale(1.08) rotate(-2deg);
+    }
+    @keyframes btnPop {
+      0% { transform: scale(0.7);}
+      80% { transform: scale(1.1);}
+      100% { transform: scale(1);}
+    }
+    
+    /* Photo Popup Modal Styles */
+    .photo-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      animation: modalFadeIn 0.3s ease-out;
+    }
+    
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .modal-content {
+      position: relative;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    
+    .modal-image {
+      max-width: 90vw;
+      max-height: 90vh;
+      min-width: 200px;
+      min-height: 200px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      display: block;
+    }
+    
+    .modal-video {
+      max-width: 90vw;
+      max-height: 90vh;
+      min-width: 300px;
+      min-height: 200px;
+      width: auto;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      display: block;
+    }
+    
+    .close-modal {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: #fff;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 10001;
+      transition: transform 0.2s;
+    }
+    
+    .close-modal:hover {
+      transform: scale(1.2);
+    }
+    
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #fff;
+      font-size: 50px;
+      cursor: pointer;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 50%;
+      transition: all 0.3s;
+      z-index: 10001;
+    }
+    
+    .nav-arrow:hover {
+      background: rgba(0, 0, 0, 0.8);
+      transform: translateY(-50%) scale(1.1);
+    }
+    
+    .prev-arrow {
+      left: 30px;
+    }
+    
+    .next-arrow {
+      right: 30px;
+    }
+    
+    .photo-counter {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #fff;
+      font-size: 18px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px 20px;
+      border-radius: 20px;
+      z-index: 10001;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        padding: 0.5em;
+      }
+      .gallery img, .gallery video {
+        width: 98vw;
+        height: auto;
+      }
+      .nav-arrow {
+        font-size: 30px;
+        padding: 15px;
+      }
+      .prev-arrow {
+        left: 10px;
+      }
+      .next-arrow {
+        right: 10px;
+      }
+      .close-modal {
+        top: 10px;
+        right: 20px;
+        font-size: 30px;
+      }
+    }
+    h1 {
+      font-size: 2.2rem;
+      text-align: center;
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+      letter-spacing: 1px;
+    }
+    /* Responsive Styles */
+    @media (max-width: 900px) {
+      .container {
+        max-width: 98vw;
+        padding: 0.5em;
+      }
+      .gallery {
+        gap: 10px;
+      }
+      .gallery img, .gallery video {
+        width: 44vw;
+        height: 44vw;
+        max-width: 98vw;
+        max-height: 60vw;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      .gallery-btn {
+        font-size: 1rem;
+        padding: 0.7em 1.5em;
+      }
+    }
+    @media (max-width: 600px) {
+      .container {
+        max-width: 100vw;
+        padding: 0.2em;
+      }
+      .gallery {
+        gap: 6px;
+      }
+      .gallery img, .gallery video {
+        width: 98vw;
+        height: 55vw;
+        max-width: 98vw;
+        max-height: 60vw;
+      }
+      h1 {
+        font-size: 1.1rem;
+      }
+      .gallery-btn {
+        font-size: 0.95rem;
+        padding: 0.6em 1.1em;
+      }
+    }
+    /* Modal Responsive */
+    @media (max-width: 900px) {
+      .modal-content {
+        padding: 8px;
+      }
+      .modal-image, .modal-video {
+        max-width: 98vw;
+        max-height: 70vh;
+        min-width: 120px;
+        min-height: 120px;
+      }
+      .nav-arrow {
+        font-size: 32px;
+        padding: 10px;
+      }
+      .close-modal {
+        font-size: 28px;
+        top: 8px;
+        right: 12px;
+      }
+      .photo-counter {
+        font-size: 14px;
+        padding: 6px 12px;
+        bottom: 12px;
+      }
+    }
+    @media (max-width: 600px) {
+      .modal-content {
+        padding: 2px;
+      }
+      .modal-image, .modal-video {
+        max-width: 99vw;
+        max-height: 60vh;
+        min-width: 80px;
+        min-height: 80px;
+      }
+      .nav-arrow {
+        font-size: 22px;
+        padding: 6px;
+      }
+      .close-modal {
+        font-size: 20px;
+        top: 4px;
+        right: 6px;
+      }
+      .photo-counter {
+        font-size: 11px;
+        padding: 4px 8px;
+        bottom: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Aswati's Chappri Photos</h1>
+    <div class="gallery">
+      <img src="ass photo/WhatsApp Image 2025-07-19 at 05.28.42_2d3561a3.jpg" alt="Chappri 1" onclick="openModal(0)">
+      <img src="ass photo/WhatsApp Image 2025-07-19 at 05.28.42_a29887bd.jpg" alt="Chappri 2" onclick="openModal(1)">
+      <img src="ass photo/WhatsApp Image 2025-07-19 at 05.29.40_10d83098.jpg" alt="Chappri 3" onclick="openModal(2)">
+      <img src="ass photo/WhatsApp Image 2025-07-19 at 05.29.40_62f92b2c.jpg" alt="Chappri 4" onclick="openModal(3)">
+      <video src="ass photo/WhatsApp Video 2025-07-19 at 05.29.48_527992bb.mp4" alt="Chappri 5" controls muted onclick="openModal(4)"></video>
+      <img src="ass photo/1.jpg" alt="Chappri 6" onclick="openModal(5)">
+      <img src="ass photo/2.jpg" alt="Chappri 7" onclick="openModal(6)">
+      <img src="ass photo/3.jpg" alt="Chappri 8" onclick="openModal(7)">
+      <img src="ass photo/4.jpg" alt="Chappri 9" onclick="openModal(8)">
+      <img src="ass photo/5.jpg" alt="Chappri 10" onclick="openModal(9)">
+      <img src="ass photo/6.jpg" alt="Chappri 11" onclick="openModal(10)">
+      <img src="ass photo/7.jpg" alt="Chappri 12" onclick="openModal(11)">
+      <img src="ass photo/9.jpg" alt="Chappri 13" onclick="openModal(12)">
+      <video src="ass photo/1.mp4" alt="Chappri 14" controls muted onclick="openModal(13)"></video>
+      <video src="ass photo/2.mp4" alt="Chappri 15" controls muted onclick="openModal(14)"></video>
+      <video src="ass photo/3.mp4" alt="Chappri 16" controls muted onclick="openModal(15)"></video>
+      <video src="ass photo/4.mp4" alt="Chappri 17" controls muted onclick="openModal(16)"></video>
+      <video src="ass photo/5.mp4" alt="Chappri 18" controls muted onclick="openModal(17)"></video>
+      <video src="ass photo/6.mp4" alt="Chappri 19" controls muted onclick="openModal(18)"></video>
+      <video src="ass photo/7.mp4" alt="Chappri 20" controls muted onclick="openModal(19)"></video>
+      <video src="ass photo/8.mp4" alt="Chappri 21" controls muted onclick="openModal(20)"></video>
+
+    </div>
+    <button class="gallery-btn" onclick="window.location.href='index.html'">Go to Home Page</button>
+  </div>
+  
+  <!-- Photo Modal -->
+  <div id="photoModal" class="photo-modal">
+    <span class="close-modal" onclick="closeModal()">&times;</span>
+    <div class="modal-content">
+      <span class="nav-arrow prev-arrow" onclick="changePhoto(-1)">&#10094;</span>
+      <span class="nav-arrow next-arrow" onclick="changePhoto(1)">&#10095;</span>
+      <div id="modalMedia"></div>
+      <div class="photo-counter" id="photoCounter"></div>
+    </div>
+  </div>
+  
+  <audio id="gallery-bg-music" src="audio/urulai.mp3" loop></audio>
+  <div id="gallery-music-overlay">
+    <button id="gallery-play-music-btn">
+      <span style="font-size:2em;">🎶</span> Let's vibe up the gallery!
+    </button>
+  </div>
+  
+  <script>
+    // Photo gallery data
+    const photos = [
+  { src: "ass photo/WhatsApp Image 2025-07-19 at 05.28.42_2d3561a3.jpg", type: "image", alt: "Chappri 1" },
+  { src: "ass photo/WhatsApp Image 2025-07-19 at 05.28.42_a29887bd.jpg", type: "image", alt: "Chappri 2" },
+  { src: "ass photo/WhatsApp Image 2025-07-19 at 05.29.40_10d83098.jpg", type: "image", alt: "Chappri 3" },
+  { src: "ass photo/WhatsApp Image 2025-07-19 at 05.29.40_62f92b2c.jpg", type: "image", alt: "Chappri 4" },
+  { src: "ass photo/WhatsApp Video 2025-07-19 at 05.29.48_527992bb.mp4", type: "video", alt: "Chappri 5" },
+  { src: "ass photo/1.jpg", type: "image", alt: "Chappri 6" },
+  { src: "ass photo/2.jpg", type: "image", alt: "Chappri 7" },
+  { src: "ass photo/3.jpg", type: "image", alt: "Chappri 8" },
+  { src: "ass photo/4.jpg", type: "image", alt: "Chappri 9" },
+  { src: "ass photo/5.jpg", type: "image", alt: "Chappri 10" },
+  { src: "ass photo/6.jpg", type: "image", alt: "Chappri 11" },
+  { src: "ass photo/7.jpg", type: "image", alt: "Chappri 12" },
+  { src: "ass photo/9.jpg", type: "image", alt: "Chappri 13" },
+  { src: "ass photo/1.mp4", type: "video", alt: "Chappri 14" },
+  { src: "ass photo/2.mp4", type: "video", alt: "Chappri 15" },
+  { src: "ass photo/3.mp4", type: "video", alt: "Chappri 16" },
+  { src: "ass photo/4.mp4", type: "video", alt: "Chappri 17" },
+  { src: "ass photo/5.mp4", type: "video", alt: "Chappri 18" },
+  { src: "ass photo/6.mp4", type: "video", alt: "Chappri 19" },
+  { src: "ass photo/7.mp4", type: "video", alt: "Chappri 20" },
+  { src: "ass photo/8.mp4", type: "video", alt: "Chappri 21" },
+];
+
+
+    
+    let currentPhotoIndex = 0;
+    
+    function openModal(index) {
+      currentPhotoIndex = index;
+      showPhoto();
+      document.getElementById('photoModal').style.display = 'block';
+      document.body.style.overflow = 'hidden'; // Prevent scrolling
+    }
+    
+    function closeModal() {
+      document.getElementById('photoModal').style.display = 'none';
+      document.body.style.overflow = 'auto'; // Restore scrolling
+    }
+    
+    function changePhoto(direction) {
+      currentPhotoIndex += direction;
+      
+      if (currentPhotoIndex < 0) {
+        currentPhotoIndex = photos.length - 1;
+      } else if (currentPhotoIndex >= photos.length) {
+        currentPhotoIndex = 0;
+      }
+      
+      showPhoto();
+    }
+    
+    function showPhoto() {
+      const modalMedia = document.getElementById('modalMedia');
+      const photoCounter = document.getElementById('photoCounter');
+      const photo = photos[currentPhotoIndex];
+      
+      modalMedia.innerHTML = '';
+      
+      if (photo.type === 'image') {
+        const img = document.createElement('img');
+        img.src = photo.src;
+        img.alt = photo.alt;
+        img.className = 'modal-image';
+        modalMedia.appendChild(img);
+      } else if (photo.type === 'video') {
+        const video = document.createElement('video');
+        video.src = photo.src;
+        video.controls = true;
+        video.autoplay = true;
+        video.className = 'modal-video';
+        modalMedia.appendChild(video);
+      }
+      
+      photoCounter.textContent = `${currentPhotoIndex + 1} / ${photos.length}`;
+    }
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      const modal = document.getElementById('photoModal');
+      if (modal.style.display === 'block') {
+        if (e.key === 'Escape') {
+          closeModal();
+        } else if (e.key === 'ArrowLeft') {
+          changePhoto(-1);
+        } else if (e.key === 'ArrowRight') {
+          changePhoto(1);
+        }
+      }
+    });
+    
+    // Close modal when clicking outside the image
+    document.getElementById('photoModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      var playBtn = document.getElementById('gallery-play-music-btn');
+      var audio = document.getElementById('gallery-bg-music');
+      var overlay = document.getElementById('gallery-music-overlay');
+      if (playBtn && audio && overlay) {
+        playBtn.onclick = function() {
+          audio.play();
+          overlay.style.display = 'none';
+        };
+      }
+    });
+  </script>
+</body>
+</html>

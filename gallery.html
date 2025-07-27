@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aswati's Photo Gallery</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', 'Comic Sans MS', cursive, sans-serif;
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      overflow-x: hidden;
+      transition: background 0.5s, color 0.5s;
+    }
+    body.dark {
+      background: linear-gradient(135deg, #232526 0%, #414345 100%);
+      color: #fff;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: rgba(255,255,255,0.95);
+      border-radius: 32px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      padding: 32px 18px 40px 18px;
+      text-align: center;
+      position: relative;
+      transition: background 0.5s, color 0.5s;
+    }
+    body.dark .container {
+      background: rgba(30,30,40,0.95);
+    }
+
+    .genz-title, .neon-text {
+      font-size: 1.8rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, #ffb347, #ff69b4, #6a5acd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+      margin-bottom: 0.2em;
+      letter-spacing: 1px;
+      text-shadow: none;
+      animation: none;
+      text-align: center;
+    }
+
+    .emoji {
+      font-size: 1.3em;
+      animation: none;
+      display: inline-block;
+      filter: none;
+      color: inherit;
+    }
+
+    h2.date {
+      color: #ffb347;
+      margin-top: 0;
+      margin-bottom: 1.2em;
+      font-size: 1.5rem;
+    }
+    body.dark h2.date {
+      color: #ffe082;
+    }
+
+    .name {
+      color: #6a5acd;
+      font-weight: bold;
+    }
+    body.dark .name {
+      color: #b39ddb;
+    }
+
+    .card {
+      width: 320px;
+      height: 180px;
+      margin: 0 auto 2em auto;
+      perspective: 1000px;
+      cursor: pointer;
+      position: relative;
+      border: 2px solid #ff69b4;
+      background: #fff0f5;
+      transition: border 0.3s, background 0.3s;
+      overflow: hidden;
+    }
+    body.dark .card {
+      border: 2px solid #b39ddb;
+      background: #2d2d3a;
+    }
+    .card-front, .card-back {
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+      background: transparent;
+      box-shadow: none;
+      position: absolute;
+      top: 0; left: 0;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      padding: 18px 16px;
+      text-align: center;
+      transition: transform 0.7s cubic-bezier(.4,2,.6,1);
+      overflow-wrap: break-word;
+      word-break: break-word;
+      overflow: auto;
+      text-align: justify;
+    }
+    .card-front p, .card-back p {
+      text-align-last: left;
+    }
+    .card-front {
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+      height: 100%;
+      font-size: 1.4rem;
+      min-height: 60px;
+    }
+    .card-back {
+      transform: rotateY(180deg);
+      z-index: 1;
+      color: #ff69b4;
+      font-weight: bold;
+    }
+    body.dark .card-back {
+      color: #ffe082;
+    }
+    .card.flipped .card-front {
+      transform: rotateY(180deg);
+    }
+    .card.flipped .card-back {
+      transform: rotateY(0deg);
+    }
+
+    .genz-btn, .gallery-btn {
+      margin-top: 2em;
+      padding: 0.9em 2.2em;
+      font-size: 1.2rem;
+      background: linear-gradient(90deg, #ffb347, #ff69b4, #6a5acd);
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+      cursor: pointer;
+      font-weight: 900;
+      letter-spacing: 1px;
+      transition: background 0.3s, transform 0.2s, color 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .genz-btn:hover, .gallery-btn:hover {
+      background: linear-gradient(90deg, #6a5acd, #ff69b4, #ffb347);
+      transform: scale(1.07) rotate(-2deg);
+      color: #fffde7;
+    }
+
+    .darkmode-toggle {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      background: #fff;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      cursor: pointer;
+      z-index: 200;
+      border: 2px solid #ff69b4;
+      transition: background 0.3s, border 0.3s;
+    }
+    body.dark .darkmode-toggle {
+      background: #232526;
+      border: 2px solid #ffe082;
+    }
+
+    .age {
+      font-size: 1.4rem;
+      color: #6a5acd;
+      margin-bottom: 0.3em;
+      font-weight: bold;
+    }
+    body.dark .age {
+      color: #ffe082;
+    }
+
+    .countdown {
+      font-size: 2rem;
+      color: #ff69b4;
+      margin-bottom: 1.2em;
+      letter-spacing: 2px;
+      font-family: 'Courier New', Courier, monospace;
+      background: #fff0f5;
+      border-radius: 10px;
+      display: inline-block;
+      padding: 0.3em 1em;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    body.dark .countdown {
+      background: #2d2d3a;
+      color: #ffe082;
+    }
+
+    .gallery {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1em;
+    }
+    .gallery img, .gallery video {
+      border-radius: 18px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+      width: 220px;
+      height: 220px;
+      object-fit: fill;
+      border: 3px solid #222;
+      background: #fff;
+      transition: transform 0.2s, border 0.2s;
+    }
+    .gallery img:hover {
+      transform: scale(1.08) rotate(-2deg);
+      border: 3px solid #222;
+    }
+    body.dark .gallery img {
+      background: #232526;
+      border: 3px solid #ffe082;
+    }
+
+    /* Confetti */
+    .confetti {
+      pointer-events: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 100;
+    }
+    .confetti-piece {
+      filter: none;
+    }
+
+    /* Balloons */
+    .balloons {
+      pointer-events: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 50;
+    }
+
+    .stories-bar {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 1em 0;
+      margin: 1em 0;
+      scrollbar-width: none;
+    }
+    .stories-bar::-webkit-scrollbar {
+      display: none;
+    }
+    body.dark .stories-bar {
+      background: rgba(30,30,40,0.8);
+    }
+
+    .story {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid #ff69b4;
+      cursor: pointer;
+      transition: transform 0.2s;
+      position: relative;
+    }
+    .story img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .story span {
+      position: absolute;
+      bottom: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7em;
+      white-space: nowrap;
+    }
+    .story:hover {
+      transform: scale(1.1);
+    }
+    body.dark .story img {
+      border: 3px solid #ffe082;
+    }
+    body.dark .story span {
+      color: #ffe082;
+    }
+
+    .story-modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    .story-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .story-content {
+      background: #fff;
+      padding: 2em;
+      border-radius: 18px;
+      max-width: 90vw;
+      max-height: 80vh;
+      overflow: auto;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    body.dark .story-content {
+      background: #2d2d3a;
+      color: #fff;
+    }
+
+    /* Photo Modal Styles */
+    .photo-modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    .photo-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .photo-modal-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .photo-modal img {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .photo-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 2rem;
+      padding: 1rem;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      z-index: 2001;
+    }
+    .photo-nav-btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-50%) scale(1.1);
+    }
+    .photo-nav-btn.prev {
+      left: 20px;
+    }
+    .photo-nav-btn.next {
+      right: 20px;
+    }
+    .photo-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      padding: 0.5rem;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.3s;
+      z-index: 2001;
+    }
+    .photo-close-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    .photo-counter {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 1.2rem;
+      background: rgba(0,0,0,0.5);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      z-index: 2001;
+    }
+
+    .hashtag-banner {
+      background: linear-gradient(90deg, #ffb347, #ff69b4, #6a5acd);
+      color: #fff;
+      padding: 0.5em 1em;
+      border-radius: 25px;
+      font-weight: bold;
+      margin: 1em 0;
+      animation: hashtag-slide 3s ease-in-out infinite;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    @keyframes hashtag-slide {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(-20px); }
+    }
+
+    .polaroid-zone {
+      margin: 2em 0;
+      min-height: 200px;
+      border: 2px dashed #ff69b4;
+      border-radius: 18px;
+      padding: 1em;
+      background: rgba(255,105,180,0.1);
+    }
+    .polaroid {
+      width: 150px;
+      height: 200px;
+      background: #fff;
+      padding: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: rotate(-5deg);
+      cursor: grab;
+      position: relative;
+      transition: transform 0.2s;
+      display: inline-block;
+      margin: 10px;
+    }
+    .polaroid:hover {
+      transform: rotate(0deg) scale(1.05);
+    }
+    .polaroid img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border: 1px solid #ddd;
+    }
+    .polaroid .caption {
+      text-align: center;
+      font-family: 'Comic Sans MS', cursive;
+      font-size: 0.9em;
+      margin-top: 8px;
+      color: #333;
+    }
+    body.dark .polaroid {
+      background: #2d2d3a;
+      border: 1px solid #ffe082;
+    }
+    body.dark .polaroid img {
+      border: 1px solid #ffe082;
+    }
+    body.dark .polaroid .caption {
+      color: #ffe082;
+    }
+
+    .birthday-wishes {
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      border-radius: 18px;
+      padding: 2em;
+      margin: 2em 0;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    .birthday-wishes h2 {
+      color: #ff69b4;
+      margin-bottom: 1em;
+      font-size: 1.5rem;
+    }
+    .birthday-wishes p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #333;
+      margin-bottom: 1em;
+    }
+
+    #music-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: overlayFadeIn 0.5s ease-out;
+    }
+    #play-music-btn {
+      background: linear-gradient(90deg, #ffb347, #ff69b4, #6a5acd);
+      color: #fff;
+      border: none;
+      padding: 1.5em 3em;
+      border-radius: 50px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: btnPop 0.6s ease-out 0.3s both;
+    }
+    #play-music-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    }
+
+    #gallery-music-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: overlayFadeIn 0.5s ease-out;
+    }
+    @keyframes overlayFadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    #gallery-play-music-btn {
+      background: linear-gradient(90deg, #ffb347, #ff69b4, #6a5acd);
+      color: #fff;
+      border: none;
+      padding: 1.5em 3em;
+      border-radius: 50px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: btnPop 0.6s ease-out 0.3s both;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #gallery-play-music-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    }
+    @keyframes btnPop {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 20px auto;
+        padding: 20px 15px;
+      }
+      .card {
+        width: 280px;
+        height: 160px;
+      }
+      .gallery img {
+        width: 150px;
+        height: 150px;
+      }
+      .genz-title {
+        font-size: 1.5rem;
+      }
+      .countdown {
+        font-size: 1.5rem;
+      }
+      .stories-bar {
+        gap: 8px;
+      }
+      .story img {
+        width: 60px;
+        height: 60px;
+      }
+      .polaroid {
+        width: 120px;
+        height: 160px;
+      }
+      .polaroid img {
+        height: 90px;
+      }
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -20px;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: confetti-fall linear forwards;
+    }
+    @keyframes confetti-fall {
+      to {
+        top: 100vh;
+        transform: rotate(360deg);
+      }
+    }
+    .balloon {
+      position: absolute;
+      bottom: -60px;
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      pointer-events: none;
+      animation: balloon-rise linear forwards;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.10);
+    }
+    @keyframes balloon-rise {
+      to {
+        bottom: 110vh;
+        transform: translateX(-30px) scale(1.1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="darkmode-toggle" onclick="toggleDarkMode()">
+    <span id="darkmode-icon">🌙</span>
+  </div>
+  <div class="container">
+    <h1>Aswati's Photo Gallery</h1>
+    <div class="gallery">
+      <div class="gallery">
+        <img src="n photo/4.jpg" alt="Aswati 1" onclick="openPhotoModal(0)">
+        <img src="n photo/5.jpg" alt="Aswati 2" onclick="openPhotoModal(1)">
+        <img src="n photo/6.jpg" alt="Aswati 3" onclick="openPhotoModal(2)">
+        <img src="n photo/3.jpg" alt="Aswati 4" onclick="openPhotoModal(3)">
+        <img src="n photo/1.jpg" alt="Aswati 5" onclick="openPhotoModal(4)">
+        <img src="n photo/2.jpg" alt="Aswati 6" onclick="openPhotoModal(5)">
+        <img src="n photo/8.jpg" alt="Aswati 7" onclick="openPhotoModal(6)">
+        <img src="n photo/9.jpg" alt="Aswati 8" onclick="openPhotoModal(7)">
+        <img src="n photo/10.jpg" alt="Aswati 9" onclick="openPhotoModal(8)">
+        <img src="n photo/11.jpg" alt="Aswati 10" onclick="openPhotoModal(9)">
+        <img src="n photo/12.jpg" alt="Aswati 11" onclick="openPhotoModal(10)">
+        <img src="n photo/13.jpg" alt="Aswati 12" onclick="openPhotoModal(11)">
+        <img src="n photo/14.jpg" alt="Aswati 13" onclick="openPhotoModal(12)">
+        <img src="n photo/15.jpg" alt="Aswati 14" onclick="openPhotoModal(13)">
+        <img src="n photo/17.jpg" alt="Aswati 15" onclick="openPhotoModal(14)">
+        <img src="n photo/20.jpg" alt="Aswati 15" onclick="openPhotoModal(15)">
+        <img src="n photo/22.jpg" alt="Aswati 15" onclick="openPhotoModal(16)">
+        <img src="n photo/23.jpg" alt="Aswati 15" onclick="openPhotoModal(17)">
+        <img src="n photo/24.jpg" alt="Aswati 15" onclick="openPhotoModal(18)">
+        <img src="n photo/25.jpg" alt="Aswati 15" onclick="openPhotoModal(19)">
+        <img src="n photo/26.jpg" alt="Aswati 15" onclick="openPhotoModal(20)">
+        <img src="n photo/28.jpg" alt="Aswati 15" onclick="openPhotoModal(21)">
+        <img src="n photo/29.jpg" alt="Aswati 15" onclick="openPhotoModal(22)">
+        <img src="n photo/30.jpg" alt="Aswati 15" onclick="openPhotoModal(22)">
+        <img src="n photo/31.jpg" alt="Aswati 15" onclick="openPhotoModal(23)">
+        <img src="n photo/32.jpg" alt="Aswati 15" onclick="openPhotoModal(23)">
+        <img src="n photo/33.jpg" alt="Aswati 15" onclick="openPhotoModal(24)">
+        <img src="n photo/34.jpg" alt="Aswati 15" onclick="openPhotoModal(25)">
+        <img src="n photo/35.jpg" alt="Aswati 15" onclick="openPhotoModal(26)">
+        <img src="n photo/36.jpg" alt="Aswati 15" onclick="openPhotoModal(27)">
+        <img src="n photo/37.jpg" alt="Aswati 15" onclick="openPhotoModal(28)">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+    <button class="gallery-btn" onclick="window.location.href='chappri.html'">Aswati Chappri Photos</button>
+  </div>
+  <audio id="gallery-bg-music" src="audio/Kurumugil Sita Ramam 128 Kbps.mp3" loop></audio>
+  <div id="gallery-music-overlay">
+    <button id="gallery-play-music-btn">
+      <span style="font-size:2em;">🎶</span> Let's vibe up the gallery!
+    </button>
+  </div>
+  <div class="confetti"></div>
+  <div class="balloons"></div>
+
+  <!-- Photo Modal -->
+  <div class="photo-modal" id="photoModal">
+    <div class="photo-modal-content">
+      <button class="photo-close-btn" onclick="closePhotoModal()">✕</button>
+      <button class="photo-nav-btn prev" onclick="navigatePhoto(-1)">‹</button>
+      <button class="photo-nav-btn next" onclick="navigatePhoto(1)">›</button>
+      <img id="modalPhoto" src="" alt="Aswati Photo">
+      <div class="photo-counter" id="photoCounter"></div>
+    </div>
+  </div>
+
+  <script>
+    // Confetti animation
+    function createConfettiPiece() {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti-piece';
+      confetti.style.left = Math.random() * 100 + 'vw';
+      confetti.style.background = `hsl(${Math.random()*360}, 80%, 60%)`;
+      confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
+      confetti.style.opacity = 0.7 + Math.random() * 0.3;
+      confetti.style.width = confetti.style.height = (8 + Math.random() * 8) + 'px';
+      document.querySelector('.confetti').appendChild(confetti);
+      setTimeout(() => confetti.remove(), 5000);
+    }
+    setInterval(() => {
+      for (let i = 0; i < 8; i++) createConfettiPiece();
+    }, 400);
+
+    // Balloons animation
+    function createBalloon() {
+      const balloon = document.createElement('div');
+      balloon.className = 'balloon';
+      balloon.style.left = Math.random() * 90 + 'vw';
+      balloon.style.background = `hsl(${Math.random()*360}, 70%, 60%)`;
+      balloon.style.animationDuration = (4 + Math.random() * 4) + 's';
+      balloon.style.width = balloon.style.height = (40 + Math.random() * 30) + 'px';
+      document.querySelector('.balloons').appendChild(balloon);
+      setTimeout(() => balloon.remove(), 9000);
+    }
+    setInterval(() => {
+      createBalloon();
+    }, 800);
+
+    // Confetti explosion on card flip
+    function confettiExplosion(x, y) {
+      for (let i = 0; i < 40; i++) {
+        const conf = document.createElement('div');
+        conf.className = 'confetti-piece';
+        conf.style.left = x + 'px';
+        conf.style.top = y + 'px';
+        conf.style.background = `hsl(${Math.random()*360}, 80%, 60%)`;
+        conf.style.width = conf.style.height = (8 + Math.random() * 8) + 'px';
+        conf.style.opacity = 0.7 + Math.random() * 0.3;
+        conf.style.position = 'fixed';
+        conf.style.zIndex = 9999;
+        const angle = Math.random() * 2 * Math.PI;
+        const velocity = 6 + Math.random() * 8;
+        const dx = Math.cos(angle) * velocity;
+        const dy = Math.sin(angle) * velocity;
+        let t = 0;
+        function animate() {
+          t += 0.1;
+          conf.style.left = (x + dx * t * 8) + 'px';
+          conf.style.top = (y + dy * t * 8 + 0.5 * 80 * t * t) + 'px';
+          conf.style.transform = `rotate(${t*360}deg)`;
+          if (t < 1.2) requestAnimationFrame(animate);
+          else conf.remove();
+        }
+        animate();
+        document.body.appendChild(conf);
+      }
+    }
+
+    // Dark mode toggle
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark');
+      const icon = document.getElementById('darkmode-icon');
+      if (document.body.classList.contains('dark')) {
+        icon.textContent = '☀️';
+      } else {
+        icon.textContent = '🌙';
+      }
+    }
+
+    // Gallery music functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('gallery-play-music-btn').onclick = function() {
+        document.getElementById('gallery-bg-music').play();
+        document.getElementById('gallery-music-overlay').style.display = 'none';
+      };
+    });
+
+    // Music auto-play on user interaction
+    window.addEventListener('click', function playMusicOnce() {
+      const music = document.getElementById('gallery-bg-music');
+      if (music.paused) {
+        music.play();
+      }
+      window.removeEventListener('click', playMusicOnce);
+    });
+
+    // Photo Modal Functionality
+    const photos = [
+      'n photo/4.jpg',
+      'n photo/5.jpg',
+      'n photo/6.jpg',
+      'n photo/3.jpg',
+      'n photo/1.jpg',
+      'n photo/2.jpg',
+      'n photo/8.jpg',
+      'n photo/9.jpg',
+      'n photo/10.jpg',
+      'n photo/11.jpg',
+      'n photo/12.jpg',
+      'n photo/13.jpg',
+      'n photo/14.jpg',
+      'n photo/15.jpg',
+      'n photo/17.jpg',
+      'n photo/20.jpg',
+      'n photo/22.jpg',
+      'n photo/23.jpg',
+      'n photo/24.jpg',
+      'n photo/25.jpg',
+      'n photo/26.jpg',
+      'n photo/27.jpg',
+      'n photo/28.jpg',
+      'n photo/29.jpg',
+      'n photo/30.jpg',
+      'n photo/31.jpg',
+      'n photo/32.jpg',
+      'n photo/33.jpg',
+      'n photo/34.jpg',
+      'n photo/35.jpg',
+      'n photo/36.jpg',
+      'n photo/37.jpg',
+
+
+    ];
+    let currentPhotoIndex = 0;
+
+    function openPhotoModal(index) {
+      currentPhotoIndex = index;
+      const modal = document.getElementById('photoModal');
+      const modalPhoto = document.getElementById('modalPhoto');
+      const photoCounter = document.getElementById('photoCounter');
+      
+      modalPhoto.src = photos[index];
+      photoCounter.textContent = `${index + 1} / ${photos.length}`;
+      
+      modal.classList.add('active');
+      
+      // Add confetti effect when opening modal
+      confettiExplosion(window.innerWidth / 2, window.innerHeight / 2);
+    }
+
+    function closePhotoModal() {
+      const modal = document.getElementById('photoModal');
+      modal.classList.remove('active');
+    }
+
+    function navigatePhoto(direction) {
+      currentPhotoIndex = (currentPhotoIndex + direction + photos.length) % photos.length;
+      const modalPhoto = document.getElementById('modalPhoto');
+      const photoCounter = document.getElementById('photoCounter');
+      
+      modalPhoto.src = photos[currentPhotoIndex];
+      photoCounter.textContent = `${currentPhotoIndex + 1} / ${photos.length}`;
+      
+      // Add confetti effect when navigating
+      confettiExplosion(window.innerWidth / 2, window.innerHeight / 2);
+    }
+
+    // Close modal when clicking outside the image
+    document.getElementById('photoModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closePhotoModal();
+      }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      const modal = document.getElementById('photoModal');
+      if (modal.classList.contains('active')) {
+        if (e.key === 'Escape') {
+          closePhotoModal();
+        } else if (e.key === 'ArrowLeft') {
+          navigatePhoto(-1);
+        } else if (e.key === 'ArrowRight') {
+          navigatePhoto(1);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
